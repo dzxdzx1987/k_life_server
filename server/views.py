@@ -2,8 +2,9 @@ from flask import render_template, request, url_for, redirect, flash
 from flask_login import login_user, login_required, logout_user, current_user
 
 from server import app, db
-from server.models import User, Movie
+from server.models import User, Movie, BusRouteInfo
 
+from server.busApi import getBusRouteList
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -108,3 +109,31 @@ def logout():
     logout_user()
     flash('Goodbye.')
     return redirect(url_for('index'))
+
+@app.route('/bus', methods=['GET', 'POST'])
+@login_required
+def bus():
+    if request.method == 'POST':
+        busRouteNm = request.form['busRouteNm']
+
+        if not busRouteNm or len(busRouteNm) > 30:
+            flash('Invalid input.')
+            return redirect(url_for('bus'))
+
+        try:
+            bus_routes = getBusRouteList(busRouteNm)  # Pass the busRouteNm as an argument
+            if not bus_routes:
+                flash('No routes found for the given name.')
+
+            # Process the returned data (e.g., display it on the page)
+            return render_template('bus.html', bus_routes=bus_routes)
+
+        except Exception as e:
+            flash(f'Error fetching bus routes: {str(e)}')
+            return redirect(url_for('bus'))
+
+        flash('bus route info updated.')
+        return redirect(url_for('index'))
+
+    bus_routes = BusRouteInfo.query.all()
+    return render_template('bus.html', bus_routes=bus_routes)

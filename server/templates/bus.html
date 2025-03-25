@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3>Bus Route Information</h3>
+<form method="POST">
+    <label for="busRouteNm">Bus Route Name:</label>
+    <input type="text" id="busRouteNm" name="busRouteNm" required>
+    <input class="btn" type="submit" name="submit" value="Search">
+</form>
+
+{% if bus_routes %}
+        <h2>Results:</h2>
+        <ul class="movie-list">
+            {% for route in bus_routes %}
+                <li>{{ route.busRouteId }} {{ route.busRouteNm }}
+                    <span class="float-right">
+                        {% if current_user.is_authenticated %}
+                        <a class="btn" href="{{ url_for('edit', movie_id=route.busRouteId) }}">Edit</a>
+                        <form class="inline-form" method="post" action="{{ url_for('delete', movie_id=route.busRouteId) }}">
+                            <input class="btn" type="submit" name="delete" value="Delete" onclick="return confirm('Are you sure?')">
+                        </form>
+                        {% endif %}
+                        <a class="imdb" href="https://www.imdb.com/find?q={{ route.busRouteNm }}" target="_blank" title="Find this movie on IMDb">IMDb</a>
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+{% endif %}
+
+{% endblock %}
