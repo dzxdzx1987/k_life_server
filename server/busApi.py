@@ -3,6 +3,7 @@ import requests
 import json
 import os
 import datetime
+import logging
 
 from server import app, db
 from server.models import BusRouteInfo
@@ -18,26 +19,31 @@ def getBusRouteList(busRouteNm):
             'resultType' : 'json'
         })
 
-        
-        parsed_data = json.loads(response.content)
+        response.raise_for_status()  # raises exception when not a 2xx response
+        logging.info(f"HTTP response code: {response.status_code}")
+        if response.status_code == 204:
+            return None
 
+        parsed_data = json.loads(response.content)
         msgHeader = parsed_data['msgHeader']
-        print(f"응답코드: {msgHeader['headerCd']}")
+        logging.info(f"응답코드: {msgHeader['headerCd']}")
         if msgHeader['headerCd'] != '0':
-            print(f"에러 메시지: {msgHeader['headerMsg']}")
+            logging.info(f"에러 메시지: {msgHeader['headerMsg']}")
             return None
 
         for item in parsed_data['msgBody']['itemList']:
-            print(f"버스 노선명: {item['busRouteNm']}")
-            print(f"출발역: {item['stStationNm']}")
-            print(f"도착역: {item['edStationNm']}")
-            print(f"운행 거리: {item['length']} km")
-            print(f"첫차 시간: {item['firstBusTm']}")
-            print(f"막차 시간: {item['lastBusTm']}")
-            print(f"회사명: {item['corpNm']}")
-            print("-" * 30)
+            logging.info(f"버스 노선 ID: {item['busRouteId']}")
+            logging.info(f"버스 노선명: {item['busRouteNm']}")
+            logging.info(f"출발역: {item['stStationNm']}")
+            logging.info(f"도착역: {item['edStationNm']}")
+            logging.info(f"운행 거리: {item['length']} km")
+            logging.info(f"첫차 시간: {item['firstBusTm']}")
+            logging.info(f"막차 시간: {item['lastBusTm']}")
+            logging.info(f"회사명: {item['corpNm']}")
+            logging.info("-" * 30)
             # 检查是否已经存在相同的 busRouteId
             existing_route = BusRouteInfo.query.filter_by(busRouteId=item['busRouteId']).first()
+            logging.info(f"existing_route: {existing_route}")
             if not existing_route:
                 # 如果不存在，则添加新条目
                 busRouteInfo = BusRouteInfo(
