@@ -17,8 +17,15 @@ def getBusRouteList(busRouteNm):
             'strSrch' : busRouteNm, 
             'resultType' : 'json'
         })
+
         
         parsed_data = json.loads(response.content)
+
+        msgHeader = parsed_data['msgHeader']
+        print(f"응답코드: {msgHeader['headerCd']}")
+        if msgHeader['headerCd'] != '0':
+            print(f"에러 메시지: {msgHeader['headerMsg']}")
+            return None
 
         for item in parsed_data['msgBody']['itemList']:
             print(f"버스 노선명: {item['busRouteNm']}")

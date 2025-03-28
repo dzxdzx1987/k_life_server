@@ -39,4 +39,4 @@ def inject_user():
     return dict(user=user)
 
 
-from server import views, errors, commands, busApi
+from server import views, errors, commands, busApi, openApi
