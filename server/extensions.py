@@ -13,7 +13,7 @@ login_manager = LoginManager()
 
 @login_manager.user_loader
 def load_user(user_id):
-    from watchlist.models import User
+    from server.models import User
     user = db.session.get(User, int(user_id))
     return user
 

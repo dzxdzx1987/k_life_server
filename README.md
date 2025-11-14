@@ -42,3 +42,6 @@ Test account:
 
 This project is licensed under the MIT License (see the
 [LICENSE](LICENSE) file for details).
+
+新增表后，请运行初始化命令创建/更新数据库。
+- 初始化（会创建新表）： python -m flask init-db

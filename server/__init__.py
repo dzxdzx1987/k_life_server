@@ -16,6 +16,9 @@ def create_app(config_name='development'):
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
+    # 注册 REST API 蓝图
+    from server.blueprints.api import api_bp
+    app.register_blueprint(api_bp, url_prefix='/api')
 
     db.init_app(app)
     login_manager.init_app(app)
