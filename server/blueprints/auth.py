@@ -37,3 +37,34 @@ def logout():
     logout_user()
     flash('Goodbye.')
     return redirect(url_for('main.index'))
+
+# 新增：RESTful 登录与登出（JSON输入/输出）
+from flask_login import current_user
+
+@auth_bp.post('/api/auth/login')
+def api_login():
+    data = request.get_json(silent=True) or {}
+    username = data.get('username')
+    password = data.get('password')
+    remember = bool(data.get('remember', False))
+
+    if not username or not password:
+        return {"error": "Invalid input"}, 400
+
+    user = db.session.execute(select(User).filter_by(username=username)).scalar()
+    if user is not None and user.validate_password(password):
+        login_user(user, remember=remember)
+        return {
+            "message": "Login success",
+            "user": {"id": user.id, "name": user.name, "username": user.username}
+        }, 200
+
+    return {"error": "Invalid credentials"}, 401
+
+@auth_bp.post('/api/auth/logout')
+def api_logout():
+    if not current_user.is_authenticated:
+        return {"error": "Unauthorized"}, 401
+
+    logout_user()
+    return {"message": "Logout success"}, 200
